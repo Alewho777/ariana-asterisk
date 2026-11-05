@@ -2,6 +2,7 @@ const app = require("./app");
 const env = require("./config/env");
 const ariService = require("./modules/ari/ari.service");
 const { attachAriWebSocketServer } = require("./modules/ari/ari.websocket");
+const { attachMobileWebSocketServer } = require("./modules/mobile/mobile.websocket");
 const pbxService = require("./modules/pbx/pbx.service");
 
 const server = app.listen(env.port, () => {
@@ -15,6 +16,7 @@ const server = app.listen(env.port, () => {
 pbxService.start();
 ariService.start();
 attachAriWebSocketServer(server);
+attachMobileWebSocketServer(server);
 
 process.on("SIGTERM", shutdown("SIGTERM"));
 process.on("SIGINT", shutdown("SIGINT"));
