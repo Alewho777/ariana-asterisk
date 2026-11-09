@@ -495,6 +495,16 @@ function getMediaSession(idOrLinkedid) {
     return session ? snapshotMediaSession(session) : null;
 }
 
+function hasSession(idOrLinkedid) {
+    const key = String(idOrLinkedid || "").trim();
+    const session = mobileSessionsById.get(key) || mobileSessionsByLinkedId.get(key);
+    return Boolean(session && session.status !== "closed");
+}
+
+async function stopMediaSessionByLinkedId(idOrLinkedid, reason = "closed") {
+    return closeMediaSession(idOrLinkedid, reason);
+}
+
 function listMediaSessions() {
     return Array.from(mobileSessionsById.values()).map(snapshotMediaSession);
 }
@@ -906,8 +916,10 @@ module.exports = {
     createAgentWebSocketAccess,
     startMediaSessionByLinkedId,
     getMediaSession,
+    hasSession,
     listMediaSessions,
     closeMediaSession,
+    stopMediaSessionByLinkedId,
     attachAgentWebSocket,
     __test: {
         resetMediaSessions() {
