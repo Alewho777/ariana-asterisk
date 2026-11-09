@@ -226,6 +226,14 @@ async function startMediaSessionByLinkedId(linkedid, options = {}) {
     }
 
     if (!baseSession || !baseSession.inStasis) {
+        if (env.ariStasisRedirectEnabled && typeof pbxService.redirectCallToStasis === "function") {
+            console.log("[mobile:media] Llamada entrante no está en Stasis. Redirigiendo canal AMI a Stasis...", {
+                targetLinkedid,
+            });
+            await pbxService.redirectCallToStasis(targetLinkedid).catch((err) => {
+                console.warn("[mobile:media] Error en redirectCallToStasis:", err.message);
+            });
+        }
         console.log("[mobile:media] waiting for mobile call to enter Stasis", {
             targetLinkedid,
             outboundKey,
@@ -254,7 +262,7 @@ async function startMediaSessionByLinkedId(linkedid, options = {}) {
     if (!baseSession.answeredAt && !["answered", "bridged"].includes(baseSession.status)) {
         await ariService.answerCallByLinkedId(effectiveKey);
         if (typeof ariService.stopMoh === "function") {
-            await ariService.stopMoh(effectiveKey).catch(() => {});
+            await ariService.stopMoh(effectiveKey).catch(() => { });
         }
     }
 
@@ -309,7 +317,7 @@ async function startMediaSessionByLinkedId(linkedid, options = {}) {
             message: error.message,
             status: error.response?.status,
         });
-        await closeMediaSession(mediaSession.id, "start_failed").catch(() => {});
+        await closeMediaSession(mediaSession.id, "start_failed").catch(() => { });
         throw error;
     }
 }
@@ -340,7 +348,7 @@ function attachAgentWebSocket(linkedid, ws, options = {}) {
                 otherSession.status !== "closed" &&
                 otherSession.sessionAgentKey === sessionAgentKey
             ) {
-                closeMediaSession(id, "mobile_agent_new_call_started").catch(() => {});
+                closeMediaSession(id, "mobile_agent_new_call_started").catch(() => { });
             }
         }
     }
